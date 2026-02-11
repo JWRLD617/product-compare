@@ -1,6 +1,6 @@
 import { Product, Platform } from "./types";
 import { fetchAmazonProduct, normalizeAmazonProduct } from "./amazon";
-import { fetchEbayProduct, normalizeEbayProduct } from "./ebay";
+import { fetchEbayProduct, normalizeEbayProduct, isEbayConfigured } from "./ebay";
 
 export async function fetchAndNormalizeProduct(
   platform: Platform,
@@ -14,6 +14,9 @@ export async function fetchAndNormalizeProduct(
       return product;
     }
     case "ebay": {
+      if (!isEbayConfigured()) {
+        throw new Error("eBay integration is being set up. Please try an Amazon URL for now.");
+      }
       const data = await fetchEbayProduct(productId);
       return normalizeEbayProduct(data);
     }

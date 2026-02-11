@@ -1,7 +1,7 @@
 import { Product, MatchResult, Platform } from "../scrapers/types";
 import { buildSearchQuery } from "../scrapers/normalizer";
 import { searchAmazonProducts, normalizeAmazonSearchResults } from "../scrapers/amazon";
-import { searchEbayProducts, normalizeEbaySearchResults } from "../scrapers/ebay";
+import { searchEbayProducts, normalizeEbaySearchResults, isEbayConfigured } from "../scrapers/ebay";
 
 function titleSimilarity(a: string, b: string): number {
   const wordsA = new Set(a.toLowerCase().split(/\s+/).filter(Boolean));
@@ -45,6 +45,7 @@ export async function matchByKeyword(
     let candidates: Product[];
 
     if (targetPlatform === "ebay") {
+      if (!isEbayConfigured()) return [];
       const results = await searchEbayProducts(query, { limit: 10 });
       candidates = normalizeEbaySearchResults(results);
     } else {

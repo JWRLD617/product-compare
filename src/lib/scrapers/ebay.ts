@@ -53,6 +53,10 @@ interface EbaySearchResponse {
 
 let cachedToken: { token: string; expiresAt: number } | null = null;
 
+export function isEbayConfigured(): boolean {
+  return !!(process.env.EBAY_APP_ID && process.env.EBAY_CERT_ID);
+}
+
 async function getEbayToken(): Promise<string> {
   if (cachedToken && Date.now() < cachedToken.expiresAt) {
     return cachedToken.token;
@@ -60,7 +64,7 @@ async function getEbayToken(): Promise<string> {
 
   const appId = process.env.EBAY_APP_ID;
   const certId = process.env.EBAY_CERT_ID;
-  if (!appId || !certId) throw new Error("eBay credentials not set");
+  if (!appId || !certId) throw new Error("eBay credentials not configured yet. eBay integration will be available soon.");
 
   const credentials = Buffer.from(`${appId}:${certId}`).toString("base64");
 

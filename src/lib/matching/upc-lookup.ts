@@ -1,6 +1,6 @@
 import { Product, MatchResult, Platform } from "../scrapers/types";
 import { searchAmazonProducts, normalizeAmazonSearchResults } from "../scrapers/amazon";
-import { searchEbayProducts, normalizeEbaySearchResults } from "../scrapers/ebay";
+import { searchEbayProducts, normalizeEbaySearchResults, isEbayConfigured } from "../scrapers/ebay";
 
 export async function matchByUpc(
   product: Product,
@@ -11,6 +11,7 @@ export async function matchByUpc(
 
   try {
     if (targetPlatform === "ebay") {
+      if (!isEbayConfigured()) return [];
       const results = await searchEbayProducts("", { upc });
       const products = normalizeEbaySearchResults(results);
       return products.map((p) => ({

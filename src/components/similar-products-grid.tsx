@@ -95,9 +95,14 @@ export function SimilarProductsGrid({ sourceProduct }: SimilarProductsGridProps)
         )}
 
         {!loading && !error && matches.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            No similar products found on {targetPlatform}.
-          </p>
+          <div className="rounded-lg border border-dashed p-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              No similar products found on {targetPlatform} yet.
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Cross-platform matching searches by UPC barcode and keywords to find the same product.
+            </p>
+          </div>
         )}
 
         {!loading && matches.length > 0 && (
