@@ -19,6 +19,14 @@ function formatProduct(product: Product, label: string): string {
   }
   if (product.shippingInfo) parts.push(`- **Shipping Info:** ${product.shippingInfo}`);
   if (product.availability) parts.push(`- **Availability:** ${product.availability}`);
+  if (product.listPrice && product.listPrice > product.price) {
+    const savings = product.listPrice - product.price;
+    const pct = Math.round((savings / product.listPrice) * 100);
+    parts.push(`- **List Price:** $${product.listPrice.toFixed(2)} (currently ${pct}% off)`);
+  }
+  if (product.offers && product.offers.length > 0) {
+    parts.push(`- **Active Offers:** ${product.offers.map((o) => o.label).join(", ")}`);
+  }
 
   if (product.specs.length > 0) {
     parts.push("\n### Specifications");
@@ -29,6 +37,14 @@ function formatProduct(product: Product, label: string): string {
 
   if (product.description) {
     parts.push(`\n### Description\n${product.description.slice(0, 500)}`);
+  }
+
+  if (product.reviews && product.reviews.length > 0) {
+    parts.push("\n### Customer Reviews");
+    for (const review of product.reviews.slice(0, 3)) {
+      const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+      parts.push(`- ${stars} ${review.title ? `**${review.title}** — ` : ""}${review.text.slice(0, 200)}`);
+    }
   }
 
   return parts.join("\n");

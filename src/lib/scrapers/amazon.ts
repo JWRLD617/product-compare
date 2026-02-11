@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 interface RainforestProduct {
   title?: string;
   price?: { value?: number; currency?: string };
+  list_price?: { value?: number; currency?: string };
   rating?: number;
   ratings_total?: number;
   brand?: string;
@@ -21,6 +22,16 @@ interface RainforestProduct {
   asin?: string;
   link?: string;
   attributes?: Array<{ name?: string; value?: string }>;
+  top_reviews?: Array<{
+    title?: string;
+    body?: string;
+    rating?: number;
+    author?: { name?: string };
+    date?: { raw?: string };
+  }>;
+  coupon?: { badge_text?: string; text?: string };
+  deal?: { type?: string; badge_text?: string };
+  promotions?: Array<{ raw?: string }>;
 }
 
 interface RainforestResponse {
@@ -132,6 +143,34 @@ export function normalizeAmazonProduct(data: RainforestResponse): import("./type
     availability: p.buybox_winner?.availability?.raw,
     shippingInfo: p.buybox_winner?.shipping?.raw,
     shippingCost: p.buybox_winner?.shipping?.value,
+    listPrice: p.list_price?.value,
+    reviews: p.top_reviews?.slice(0, 5).map((r) => ({
+      title: r.title,
+      text: r.body ?? "",
+      rating: r.rating ?? 0,
+      author: r.author?.name,
+      date: r.date?.raw,
+    })),
+    offers: [
+      ...(p.coupon ? [{
+        type: "coupon" as const,
+        label: p.coupon.text ?? p.coupon.badge_text ?? "Coupon available",
+        discount: p.coupon.badge_text,
+      }] : []),
+      ...(p.deal ? [{
+        type: "deal" as const,
+        label: p.deal.badge_text ?? p.deal.type ?? "Deal",
+      }] : []),
+      ...(p.promotions?.map((promo) => ({
+        type: "promo" as const,
+        label: promo.raw ?? "Promotion",
+      })) ?? []),
+      ...(p.list_price?.value && price < p.list_price.value ? [{
+        type: "sale" as const,
+        label: `Save $${(p.list_price.value - price).toFixed(2)} (${Math.round(((p.list_price.value - price) / p.list_price.value) * 100)}% off)`,
+        discount: `${Math.round(((p.list_price.value - price) / p.list_price.value) * 100)}%`,
+      }] : []),
+    ],
     fetchedAt: new Date().toISOString(),
   };
 }

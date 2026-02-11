@@ -21,6 +21,20 @@ export interface ProductSeller {
   url?: string;
 }
 
+export interface ProductReview {
+  title?: string;
+  text: string;
+  rating: number;
+  author?: string;
+  date?: string;
+}
+
+export interface ProductOffer {
+  type: "coupon" | "deal" | "sale" | "promo";
+  label: string;
+  discount?: string;
+}
+
 export interface Product {
   id: string;
   platform: Platform;
@@ -42,6 +56,9 @@ export interface Product {
   availability?: string;
   shippingCost?: number;
   shippingInfo?: string;
+  reviews?: ProductReview[];
+  offers?: ProductOffer[];
+  listPrice?: number;
   fetchedAt: string;
 }
 

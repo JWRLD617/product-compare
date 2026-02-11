@@ -11,6 +11,9 @@ interface EbayItem {
   itemId?: string;
   title?: string;
   price?: { value?: string; currency?: string };
+  originalPrice?: { value?: string; currency?: string };
+  discountPercentage?: string;
+  discountAmount?: { value?: string; currency?: string };
   image?: { imageUrl?: string };
   additionalImages?: Array<{ imageUrl?: string }>;
   condition?: string;
@@ -32,6 +35,11 @@ interface EbayItem {
   primaryProductReviewRating?: {
     reviewCount?: number;
     averageRating?: string;
+  };
+  marketingPrice?: {
+    originalPrice?: { value?: string };
+    discountPercentage?: string;
+    discountAmount?: { value?: string };
   };
 }
 
@@ -203,6 +211,23 @@ export function normalizeEbayProduct(item: EbayItem): Product {
     availability: item.estimatedAvailabilities?.[0]?.estimatedAvailabilityStatus,
     shippingCost,
     shippingInfo: item.shippingOptions?.[0]?.type,
+    listPrice: item.marketingPrice?.originalPrice?.value
+      ? parseFloat(item.marketingPrice.originalPrice.value)
+      : undefined,
+    offers: (() => {
+      const offers: import("./types").ProductOffer[] = [];
+      const mp = item.marketingPrice;
+      if (mp?.discountPercentage || mp?.discountAmount?.value) {
+        offers.push({
+          type: "sale",
+          label: mp.discountPercentage
+            ? `${mp.discountPercentage}% off`
+            : `Save $${mp.discountAmount?.value}`,
+          discount: mp.discountPercentage ? `${mp.discountPercentage}%` : undefined,
+        });
+      }
+      return offers.length > 0 ? offers : undefined;
+    })(),
     fetchedAt: new Date().toISOString(),
   };
 }

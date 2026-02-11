@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { PlatformBadge } from "./platform-badge";
 import { RatingDisplay } from "./rating-display";
@@ -127,8 +128,26 @@ export function ComparisonTable({ source, match }: ComparisonTableProps) {
         <div className="divide-y">
           <ComparisonRow
             label="Price"
-            sourceValue={`$${source.price.toFixed(2)}`}
-            matchValue={`$${match.price.toFixed(2)}`}
+            sourceValue={
+              <span className="flex items-baseline gap-1.5">
+                ${source.price.toFixed(2)}
+                {source.listPrice && source.listPrice > source.price && (
+                  <span className="text-xs text-muted-foreground line-through">
+                    ${source.listPrice.toFixed(2)}
+                  </span>
+                )}
+              </span>
+            }
+            matchValue={
+              <span className="flex items-baseline gap-1.5">
+                ${match.price.toFixed(2)}
+                {match.listPrice && match.listPrice > match.price && (
+                  <span className="text-xs text-muted-foreground line-through">
+                    ${match.listPrice.toFixed(2)}
+                  </span>
+                )}
+              </span>
+            }
             highlight={priceBetter}
           />
           <ComparisonRow
@@ -192,6 +211,31 @@ export function ComparisonTable({ source, match }: ComparisonTableProps) {
             label="Availability"
             sourceValue={source.availability ?? "—"}
             matchValue={match.availability ?? "—"}
+          />
+          <ComparisonRow
+            label="Offers"
+            sourceValue={
+              source.offers && source.offers.length > 0 ? (
+                <div className="flex flex-wrap gap-1">
+                  {source.offers.map((o, i) => (
+                    <Badge key={i} variant="secondary" className="text-xs bg-green-50 text-green-700 border-green-200">
+                      {o.label}
+                    </Badge>
+                  ))}
+                </div>
+              ) : "—"
+            }
+            matchValue={
+              match.offers && match.offers.length > 0 ? (
+                <div className="flex flex-wrap gap-1">
+                  {match.offers.map((o, i) => (
+                    <Badge key={i} variant="secondary" className="text-xs bg-green-50 text-green-700 border-green-200">
+                      {o.label}
+                    </Badge>
+                  ))}
+                </div>
+              ) : "—"
+            }
           />
         </div>
 
